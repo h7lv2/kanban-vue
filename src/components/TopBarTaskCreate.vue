@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 
-const deadlineNeeded = ref(true)
 const deadlineDate = ref(0)
 const taskName = ref('')
 const taskDescription = ref('')
@@ -14,6 +13,8 @@ const emit = defineEmits(['modal-close', 'modal-submit'])
 
 const targetElement = ref(null)
 onClickOutside(targetElement, () => emit('modal-close'))
+
+const showDate = ref(false)
 </script>
 
 <template>
@@ -22,9 +23,9 @@ onClickOutside(targetElement, () => emit('modal-close'))
       <div class="modal-container" ref="targetElement">
         <input :value="taskName" placeholder="Название задачи" />
         <input :value="taskDescription" placeholder="Описание задачи" />
-        <input :value="deadlineNeeded" type="checkbox" id="deadlineCheckmark" />
+        <input v-model="showDate" type="checkbox" id="deadlineCheckmark" />
         <label for="deadlineCheckmark">Имеется дедлайн</label>
-        <input :value="deadlineDate" type="date" />
+        <input v-show="showDate" :value="deadlineDate" type="date" />
         <button @click="emit('modal-submit')">Подтвердить</button>
         <button @click.stop="emit('modal-submit')">Закрыть</button>
       </div>
