@@ -6,6 +6,6 @@ export default interface Card {
   dateCreated: number
   dateDeadline: number | null
   dateCompleted: number | null
-  taskName: string
-  taskDescription: string
+  title: string
+  description: string
 }

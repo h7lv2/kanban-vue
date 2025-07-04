@@ -25,11 +25,21 @@ const createTask = () => {
     dateCompleted: null,
 
     dateDeadline: deadlineDate.value,
-    taskName: taskName.value,
-    taskDescription: taskDescription.value,
+    title: taskName.value,
+    description: taskDescription.value,
   }
 
-  console.log(JSON.stringify(newCard))
+  fetch('http://127.0.0.1:5000/insert', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(newCard),
+  }).then((response) => {
+    if (response.ok) {
+      console.log('task sent')
+    }
+  })
 }
 </script>
 
