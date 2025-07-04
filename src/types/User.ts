@@ -1,7 +1,6 @@
-import type { Snowflake } from '@sapphire/snowflake'
-
 export default interface User {
-  id: Snowflake
+  id: number
   userName: string
   displayName: string | null
+  profilePicture: string | null
 }

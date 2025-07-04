@@ -1,11 +1,11 @@
-import type { Snowflake } from '@sapphire/snowflake'
 import type User from './User'
 
 export default interface Card {
-  id: Snowflake
+  id: number
   assignees: User[]
-  dateCreated: EpochTimeStamp
-  dateDeadline: EpochTimeStamp
+  dateCreated: number
+  dateDeadline: number | null
+  dateCompleted: number | null
   taskName: string
   taskDescription: string
 }
