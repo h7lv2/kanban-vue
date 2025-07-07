@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 
-const deadlineDate = ref(0)
+const deadlineDate = ref('')
 const taskName = ref('')
 const taskDescription = ref('')
 
@@ -15,26 +15,58 @@ const targetElement = ref(null)
 onClickOutside(targetElement, () => emit('modal-close'))
 
 const showDate = ref(false)
+
+function clearForm() {
+  taskName.value = ''
+  taskDescription.value = ''
+  deadlineDate.value = ''
+  showDate.value = false
+}
+
+function Cancel() {
+  clearForm()
+  emit('modal-close')
+}
 </script>
 
 <template>
-  <div v-if="isOpen" class="modal-mask">
-    <div class="modal-wrapper">
-      <div class="modal-container" ref="targetElement">
-        <input :value="taskName" placeholder="Название задачи" />
-        <input :value="taskDescription" placeholder="Описание задачи" />
-        <input v-model="showDate" type="checkbox" id="deadlineCheckmark" />
-        <label for="deadlineCheckmark">Имеется дедлайн</label>
-        <input v-show="showDate" :value="deadlineDate" type="date" />
-        <button @click="emit('modal-submit')">Подтвердить</button>
-        <button @click.stop="emit('modal-submit')">Закрыть</button>
+  <transition name="modal">
+    <div v-if="isOpen" class="modal-mask">
+      <div class="modal-wrapper">
+        <div class="modal-container" ref="targetElement">
+          <input v-model="taskName" type="text" placeholder="Название задачи" class="input-field" />
+
+          <textarea
+            v-model="taskDescription"
+            placeholder="Описание задачи"
+            class="input-field textarea-field"
+            rows="3"
+          ></textarea>
+
+          <div class="checkbox-wrapper">
+            <input
+              v-model="showDate"
+              type="checkbox"
+              id="deadlineCheckmark"
+              class="checkbox-input"
+            />
+            <label for="deadlineCheckmark">Установить дедлайн</label>
+          </div>
+
+          <input v-if="showDate" v-model="deadlineDate" type="date" class="input-field" />
+
+          <div class="modal-actions">
+            <button @click="Cancel" class="cancel-button">Отмена</button>
+            <button @click="emit('modal-submit')" class="submit-button">Сохранить</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <style lang="css" scoped>
-.model-mask {
+.modal-mask {
   position: fixed;
   z-index: 9998;
   top: 0;
@@ -44,11 +76,101 @@ const showDate = ref(false)
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.model-container {
-  width: 300px;
-  margin: 150px auto;
-  padding: 20px 30px;
-  background-color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+.modal-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+}
+
+.modal-container {
+  width: 450px;
+  margin: 0 20px;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-field {
+  width: 95%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.3s;
+}
+
+.input-field::placeholder {
+  color: #999;
+  opacity: 1;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #42b983;
+}
+
+.textarea-field {
+  max-height: 100px;
+  min-height: 50px;
+  resize: vertical;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  accent-color: #42b983;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.cancel-button,
+.submit-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-button {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.cancel-button:hover {
+  background-color: #eaeaea;
+}
+
+.submit-button {
+  background-color: #42b983;
+  color: white;
+  border: none;
+}
+
+.submit-button:hover {
+  background-color: #369f6e;
+}
+
+input[type='date'] {
+  position: relative;
 }
 </style>
