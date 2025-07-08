@@ -84,8 +84,9 @@ const accountModalSubmit = (accountData: {
 <template>
   <div class="header">
     <input placeholder="Поиск по задачам..." />
-    <button @click="() => openModal('accountSettings')">Аккаунт</button>
+    <label>Проекты</label>
     <button @click="() => openModal('taskCreate')">Создать задачу</button>
+    <button @click="() => openModal('accountSettings')">Аккаунт</button>
   </div>
   <TopBarTaskCreate
     :is-open="modals.taskCreate"
@@ -135,5 +136,10 @@ const accountModalSubmit = (accountData: {
 
 .header button:hover {
   background-color: #e6e6e6;
+}
+
+.header label {
+  margin-right: 3%;
+  margin-top: 2%;
 }
 </style>

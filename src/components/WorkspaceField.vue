@@ -1,14 +1,14 @@
-<script setup lang="ts">
-import FieldCard from './FieldCard.vue'
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <FieldCard></FieldCard>
-
   <div class="column-container">
-    <div class="column decoration">
-      <div class="content"></div>
-    </div>
+    <div class="column decoration"></div>
+    <div class="column decoration"></div>
+    <div class="column decoration"></div>
+    <div class="column decoration"></div>
+    <div class="column"></div>
+    <div class="column"></div>
+    <div class="column"></div>
     <div class="column"></div>
   </div>
 </template>
@@ -16,6 +16,8 @@ import FieldCard from './FieldCard.vue'
 <style lang="css" scoped>
 .column-container {
   display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
   padding: 20px;
 }
 

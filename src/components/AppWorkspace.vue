@@ -3,9 +3,13 @@ import WorkspaceField from './WorkspaceField.vue'
 </script>
 
 <template>
-  <WorkspaceField></WorkspaceField>
+  <!-- <WorkspaceField></WorkspaceField> -->
 
-  <div class="main-container"></div>
+  <div class="main-container">
+    <main class="column-container">
+      <WorkspaceField />
+    </main>
+  </div>
 </template>
 
 <style lang="css" scoped>

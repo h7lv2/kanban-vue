@@ -15,6 +15,7 @@ const targetElement = ref(null)
 onClickOutside(targetElement, () => emit('modal-close'))
 
 const showDate = ref(false)
+const showPriority = ref(false)
 
 function clearForm() {
   taskName.value = ''
@@ -62,6 +63,16 @@ function submitModal() {
           </div>
 
           <input v-if="showDate" v-model="deadlineDate" type="date" class="input-field" />
+
+          <div class="checkbox-priority">
+            <input
+              v-model="showPriority"
+              type="checkbox"
+              id="priorityCheckmark"
+              class="checkbox-input"
+            />
+            <label for="priorityCheckmark">Приоритет</label>
+          </div>
 
           <div class="modal-actions">
             <button @click="cancelModal" class="cancel-button">Отмена</button>
@@ -139,6 +150,11 @@ function submitModal() {
   width: 18px;
   height: 18px;
   accent-color: #42b983;
+}
+
+.checkbox-priority {
+  display: flex;
+  align-items: center;
 }
 
 .modal-actions {
