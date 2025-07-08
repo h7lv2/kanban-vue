@@ -19,8 +19,33 @@ const closeModal = (modalName: keyof typeof modals.value) => {
 }
 
 // Specific modal handlers
-const taskModalSubmit = () => {
+const taskModalSubmit = (taskData: {
+  taskName: string
+  taskDescription: string | null
+  deadlineDate: string | null
+}) => {
   closeModal('taskCreate')
+  fetch(`${import.meta.env.VITE_SERVER}/tasks`, {
+    method: `POST`,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      name: taskData.taskName,
+      date_deadline: taskData.deadlineDate,
+      date_completed: null,
+      current_column: 'pool',
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Error creating task: ${response.status} ${response.text}`)
+      }
+      return response.json
+    })
+    .then((data) => {
+      console.log(data)
+    })
 }
 
 const accountModalSubmit = (accountData: {
@@ -31,7 +56,7 @@ const accountModalSubmit = (accountData: {
 }) => {
   closeModal('accountSettings')
   if (accountData.userName && accountData.userPassword) {
-    fetch(`${import.meta.env.VITE_SERVER}/api/auth/login`, {
+    fetch(`${import.meta.env.VITE_SERVER}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -2,9 +2,9 @@
 import { ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 
-const deadlineDate = ref('')
 const taskName = ref('')
 const taskDescription = ref('')
+const deadlineDate = ref('')
 
 defineProps({
   isOpen: Boolean,
@@ -23,9 +23,17 @@ function clearForm() {
   showDate.value = false
 }
 
-function Cancel() {
+function cancelModal() {
   clearForm()
   emit('modal-close')
+}
+
+function submitModal() {
+  emit('modal-close', {
+    taskName: taskName.value,
+    taskDescription: taskDescription.value ? taskDescription.value : null,
+    deadlineDate: deadlineDate.value ? deadlineDate.value : null,
+  })
 }
 </script>
 
@@ -56,8 +64,8 @@ function Cancel() {
           <input v-if="showDate" v-model="deadlineDate" type="date" class="input-field" />
 
           <div class="modal-actions">
-            <button @click="Cancel" class="cancel-button">Отмена</button>
-            <button @click="emit('modal-submit')" class="submit-button">Сохранить</button>
+            <button @click="cancelModal" class="cancel-button">Отмена</button>
+            <button @click="submitModal" class="submit-button">Сохранить</button>
           </div>
         </div>
       </div>

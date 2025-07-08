@@ -1,8 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import WorkspaceField from './WorkspaceField.vue'
+</script>
 
 <template>
   <WorkspaceField></WorkspaceField>
-  <TopBarTaskCreate></TopBarTaskCreate>
 
   <div class="main-container"></div>
 </template>
