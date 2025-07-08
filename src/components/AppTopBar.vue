@@ -31,7 +31,7 @@ const accountModalSubmit = (accountData: {
 }) => {
   closeModal('accountSettings')
   if (accountData.userName && accountData.userPassword) {
-    fetch(`${import.meta.env.VITE_API_URL}/account`, {
+    fetch(`${import.meta.env.VITE_SERVER}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,13 +41,16 @@ const accountModalSubmit = (accountData: {
         password: accountData.userPassword,
       }),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Account settings updated:', data)
+      .then((response) => {
+        if (!response.ok) {
+          alert(`Ошибка: ${response.status} ${response.statusText}`)
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        return response.json()
       })
-      .catch((error) => {
-        alert('Неверное имя пользователя или пароль')
-        console.error('Error updating account settings:', error)
+      .then((body) => {
+        console.log(body)
+        document.cookie = `user=${JSON.stringify(body.user)}`
       })
   }
 }
