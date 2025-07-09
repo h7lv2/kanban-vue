@@ -3,6 +3,10 @@ import { ref } from 'vue'
 import { NLayoutHeader, NInput, NButton, NSpace } from '@arijs/naive-ui'
 import TopBarTaskCreate from './TopBarTaskCreate.vue'
 import TopBarAccountSettings from './TopBarAccountSettings.vue'
+import { useKanbanTasks } from '../composables/useKanbanTasks'
+
+// Use the kanban tasks composable for task management
+const { createTask, refreshTasks } = useKanbanTasks()
 
 // Modal state management
 const modals = ref({
@@ -20,40 +24,29 @@ const closeModal = (modalName: keyof typeof modals.value) => {
 }
 
 // Specific modal handlers
-const taskModalSubmit = (taskData: {
+const taskModalSubmit = async (taskData: {
   taskName: string
   taskDescription: string | null
   deadlineDate: string | null
   priority: 'low' | 'medium' | 'high' | null
 }) => {
   closeModal('taskCreate')
-  fetch(`${import.meta.env.VITE_SERVER}/tasks`, {
-    method: `POST`,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      name: taskData.taskName,
-      description: taskData.taskDescription,
-      date_deadline: taskData.deadlineDate,
-      priority: taskData.priority,
-      date_completed: null,
-      current_column: 'pool',
-    }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Error creating task: ${response.status} ${response.text}`)
-      }
-      return response.json()
+
+  try {
+    await createTask({
+      title: taskData.taskName,
+      description: taskData.taskDescription || '',
+      priority: taskData.priority || 'medium',
+      deadline: taskData.deadlineDate || undefined,
+      current_column: 'todo', // Default to todo column
     })
-    .then((data) => {
-      console.log('Task created:', data)
-    })
-    .catch((error) => {
-      console.error('Error creating task:', error)
-      alert('Ошибка при создании задачи')
-    })
+    console.log('Task created successfully')
+    // Refresh the board to ensure it's up to date
+    await refreshTasks()
+  } catch (error) {
+    console.error('Error creating task:', error)
+    alert('Ошибка при создании задачи')
+  }
 }
 
 const accountModalSubmit = (accountData: {

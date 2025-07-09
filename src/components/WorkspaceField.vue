@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { NCard } from '@arijs/naive-ui'
+import { NCard, NSpin, NResult, NButton } from '@arijs/naive-ui'
 import FieldCard from './FieldCard.vue'
-import type { Column } from '../types/column'
-import { DEFAULT_COLUMNS } from '../data'
+import { useKanbanTasks } from '../composables/useKanbanTasks'
+
+// Use kanban tasks composable
+const { columns, isLoading, error, refreshTasks } = useKanbanTasks()
 
 // Отслеживание размера окна
 const windowWidth = ref(window.innerWidth)
@@ -28,12 +30,12 @@ const columnWidth = 320
 const gapWidth = 24 //
 const containerPadding = 48
 
-const columns: Column[] = DEFAULT_COLUMNS
-
 // Find how many columns can fit based on available width
 const availableWidth = computed(() => windowWidth.value - containerPadding)
-const totalColumnsWidth = columns.length * columnWidth + (columns.length - 1) * gapWidth
-const allColumnsFit = computed(() => availableWidth.value >= totalColumnsWidth)
+const totalColumnsWidth = computed(
+  () => columns.value.length * columnWidth + (columns.value.length - 1) * gapWidth,
+)
+const allColumnsFit = computed(() => availableWidth.value >= totalColumnsWidth.value)
 
 // Switch to column mode only if:
 // 1. Aspect ratio is suitable (landscape orientation)
@@ -45,14 +47,37 @@ const isWideScreen = computed(
 
 <template>
   <div class="relative">
-    <!-- TODO: Fix titles getting cut off -->
-    <!-- For some reason without a top element here, things are getting cut off. -->
-    <div class="h-24 w-full bg-red-100 opacity-50 border border-red-300">
-      <div class="text-xs text-red-600 p-1">DEBUG: Отступ для заголовков (96px)</div>
+    <!-- Debug info and refresh button -->
+    <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-blue-700">
+          <span>Состояние: </span>
+          <span v-if="isLoading" class="font-semibold">Загрузка...</span>
+          <span v-else-if="error" class="font-semibold text-red-600">Ошибка: {{ error }}</span>
+          <span v-else class="font-semibold text-green-600"
+            >Загружено {{ columns.reduce((sum, col) => sum + col.tasks.length, 0) }} задач</span
+          >
+        </div>
+        <n-button size="small" @click="refreshTasks" :loading="isLoading"> Обновить </n-button>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div v-if="isLoading" class="flex justify-center items-center h-64">
+      <n-spin size="large" />
+    </div>
+
+    <!-- Error state -->
+    <div v-else-if="error" class="flex justify-center items-center h-64">
+      <n-result status="error" title="Ошибка загрузки" :description="error">
+        <template #footer>
+          <n-button @click="refreshTasks" type="primary">Попробовать снова</n-button>
+        </template>
+      </n-result>
     </div>
 
     <!-- Column UI for wide displays -->
-    <div v-if="isWideScreen" class="flex gap-6 overflow-x-auto pb-4">
+    <div v-else-if="isWideScreen" class="flex gap-6 overflow-x-auto pb-4">
       <div v-for="column in columns" :key="column.id" class="flex-none w-80 min-h-[600px] mt-4">
         <n-card
           :title="column.title"

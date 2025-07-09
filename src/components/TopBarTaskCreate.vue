@@ -64,8 +64,9 @@ function submitModal() {
 <template>
   <n-modal
     :show="isOpen"
-    @mask-click="emit('modal-close')"
-    @update:show="(show: boolean) => !show && emit('modal-close')"
+    :mask-closable="true"
+    :close-on-esc="true"
+    @update:show="(show: boolean) => !show && cancelModal()"
   >
     <n-card
       style="width: 600px"
@@ -75,7 +76,7 @@ function submitModal() {
       role="dialog"
       aria-modal="true"
     >
-      <n-form @submit.prevent="submitModal" @keydown.enter="submitModal">
+      <n-form @submit.prevent="submitModal">
         <n-form-item label="Название задачи" required>
           <n-input
             v-model:value="taskName"
@@ -110,6 +111,8 @@ function submitModal() {
             placeholder="Выберите дату"
             clearable
             style="width: 100%"
+            @click.stop
+            @focus.stop
           />
         </n-form-item>
 
@@ -123,6 +126,8 @@ function submitModal() {
             :options="PRIORITY_OPTIONS"
             placeholder="Выберите приоритет"
             style="width: 100%"
+            @click.stop
+            @focus.stop
           />
         </n-form-item>
       </n-form>
