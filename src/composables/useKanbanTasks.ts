@@ -149,6 +149,27 @@ export function useKanbanTasks() {
   }
 
   /**
+   * Move a task to the next column, or delete it if it's already in the last column
+   */
+  const moveTaskNext = async (taskId: string, currentColumn: string) => {
+    const columnOrder = ['todo', 'progress', 'review', 'done']
+    const currentIndex = columnOrder.indexOf(currentColumn)
+
+    if (currentIndex === -1) {
+      throw new Error('Invalid current column')
+    }
+
+    // If task is in the last column ('done'), delete it
+    if (currentIndex === columnOrder.length - 1) {
+      await deleteTask(taskId)
+    } else {
+      // Move to next column
+      const nextColumn = columnOrder[currentIndex + 1]
+      await moveTask(taskId, nextColumn)
+    }
+  }
+
+  /**
    * Refresh tasks from the backend
    */
   const refreshTasks = () => {
@@ -173,6 +194,7 @@ export function useKanbanTasks() {
     updateTask,
     deleteTask,
     moveTask,
+    moveTaskNext,
     refreshTasks,
   }
 }

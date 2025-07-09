@@ -7,7 +7,7 @@ import { useKanbanTasks } from '../composables/useKanbanTasks'
 import type { Task } from '../types/task'
 
 // Use kanban tasks composable
-const { columns, isLoading, error, refreshTasks, updateTask } = useKanbanTasks()
+const { columns, isLoading, error, refreshTasks, updateTask, moveTaskNext } = useKanbanTasks()
 
 // Edit modal state
 const isEditModalOpen = ref(false)
@@ -34,7 +34,7 @@ async function handleEditModalSubmit(formData: {
   priority?: string | null
 }) {
   try {
-    await updateTask(formData.id, {
+    await updateTask(formData.id.toString(), {
       title: formData.taskName,
       description: formData.taskDescription || '',
       deadline: formData.deadlineDate || undefined,
@@ -44,6 +44,15 @@ async function handleEditModalSubmit(formData: {
     editingTask.value = null
   } catch (error) {
     console.error('Failed to update task:', error)
+  }
+}
+
+// Handle move task to next column
+async function handleMoveTaskNext(task: Task, currentColumn: string) {
+  try {
+    await moveTaskNext(task.id, currentColumn)
+  } catch (error) {
+    console.error('Failed to move task:', error)
   }
 }
 
@@ -134,8 +143,10 @@ const isWideScreen = computed(
               :description="task.description"
               :priority="task.priority"
               :deadline="task.deadline"
+              :current-column="column.id"
               @edit="() => handleEditTask(task)"
               @info="() => console.log('Show task info', task.id)"
+              @move-next="() => handleMoveTaskNext(task, column.id)"
             />
 
             <div v-if="column.tasks.length === 0" class="text-gray-400 text-center py-12 text-sm">
@@ -164,8 +175,10 @@ const isWideScreen = computed(
               :description="task.description"
               :priority="task.priority"
               :deadline="task.deadline"
+              :current-column="column.id"
               @edit="() => handleEditTask(task)"
               @info="() => console.log('Show task info', task.id)"
+              @move-next="() => handleMoveTaskNext(task, column.id)"
             />
 
             <div v-if="column.tasks.length === 0" class="text-gray-400 text-center py-12 text-sm">

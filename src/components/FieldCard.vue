@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NCard, NButton, NIcon, NSpace, NText, NTag } from '@arijs/naive-ui'
-import { EditOutlined, InfoOutlined } from '@vicons/material'
+import { EditOutlined, InfoOutlined, ArrowForwardOutlined } from '@vicons/material'
 import type { Priority } from '../types/priority'
 import { PRIORITY_COLORS, PRIORITY_LABELS } from '../types/priority'
 
@@ -9,6 +9,7 @@ interface Props {
   description?: string
   priority?: Priority
   deadline?: string
+  currentColumn?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -17,7 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
   priority: 'medium' as Priority,
 })
 
-const emit = defineEmits(['edit', 'info'])
+const emit = defineEmits(['edit', 'info', 'moveNext'])
 </script>
 
 <template>
@@ -50,6 +51,21 @@ const emit = defineEmits(['edit', 'info'])
         <n-button size="small" quaternary @click="emit('info')" title="Подробная информация">
           <template #icon>
             <n-icon><InfoOutlined /></n-icon>
+          </template>
+        </n-button>
+        <n-button
+          size="small"
+          quaternary
+          @click="emit('moveNext')"
+          :title="
+            props.currentColumn === 'done' ? 'Удалить задачу' : 'Переместить в следующую колонку'
+          "
+        >
+          <template #icon>
+            <n-icon>
+              <ArrowForwardOutlined v-if="props.currentColumn !== 'done'" />
+              <span v-else>🗑️</span>
+            </n-icon>
           </template>
         </n-button>
       </n-space>
