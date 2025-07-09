@@ -4,10 +4,24 @@ import { NCard, NSpin, NResult, NButton } from '@arijs/naive-ui'
 import FieldCard from './FieldCard.vue'
 import TopBarTaskEdit from './TopBarTaskEdit.vue'
 import { useKanbanTasks } from '../composables/useKanbanTasks'
+import { useAuth } from '../composables/useAuth'
 import type { Task } from '../types/task'
 
 // Use kanban tasks composable
-const { columns, isLoading, error, refreshTasks, updateTask, moveTaskNext } = useKanbanTasks()
+const {
+  columns,
+  isLoading,
+  error,
+  refreshTasks,
+  updateTask,
+  moveTaskNext,
+  assignUserToTask,
+  unassignUserFromTask,
+  tasks,
+} = useKanbanTasks()
+
+// Use authentication composable
+const { userId } = useAuth()
 
 // Edit modal state
 const isEditModalOpen = ref(false)
@@ -53,6 +67,35 @@ async function handleMoveTaskNext(task: Task, currentColumn: string) {
     await moveTaskNext(task.id, currentColumn)
   } catch (error) {
     console.error('Failed to move task:', error)
+  }
+}
+
+// Handle assign user to task
+async function handleAssignSelf(task: Task) {
+  if (!userId.value) {
+    alert('Необходимо войти в систему для назначения на задачу')
+    return
+  }
+
+  try {
+    await assignUserToTask(task.id, userId.value)
+  } catch (error) {
+    console.error('Failed to assign user to task:', error)
+    alert('Ошибка при назначении на задачу')
+  }
+}
+
+// Handle unassign user from task
+async function handleUnassignSelf(task: Task) {
+  if (!userId.value) {
+    return
+  }
+
+  try {
+    await unassignUserFromTask(task.id, userId.value)
+  } catch (error) {
+    console.error('Failed to unassign user from task:', error)
+    alert('Ошибка при снятии с задачи')
   }
 }
 
@@ -144,9 +187,13 @@ const isWideScreen = computed(
               :priority="task.priority"
               :deadline="task.deadline"
               :current-column="column.id"
+              :assignees="tasks.find((t: any) => t.id === task.id)?.assignees || []"
+              :current-user-id="userId"
               @edit="() => handleEditTask(task)"
               @info="() => console.log('Show task info', task.id)"
               @move-next="() => handleMoveTaskNext(task, column.id)"
+              @assign-self="() => handleAssignSelf(task)"
+              @unassign-self="() => handleUnassignSelf(task)"
             />
 
             <div v-if="column.tasks.length === 0" class="text-gray-400 text-center py-12 text-sm">
@@ -176,9 +223,13 @@ const isWideScreen = computed(
               :priority="task.priority"
               :deadline="task.deadline"
               :current-column="column.id"
+              :assignees="tasks.find((t: any) => t.id === task.id)?.assignees || []"
+              :current-user-id="userId"
               @edit="() => handleEditTask(task)"
               @info="() => console.log('Show task info', task.id)"
               @move-next="() => handleMoveTaskNext(task, column.id)"
+              @assign-self="() => handleAssignSelf(task)"
+              @unassign-self="() => handleUnassignSelf(task)"
             />
 
             <div v-if="column.tasks.length === 0" class="text-gray-400 text-center py-12 text-sm">

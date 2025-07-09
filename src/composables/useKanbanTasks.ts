@@ -170,6 +170,46 @@ export function useKanbanTasks() {
   }
 
   /**
+   * Assign current user to a task
+   */
+  const assignUserToTask = async (taskId: string, userId: number) => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      await apiService.assignUserToTask(taskId, userId)
+      // Refresh tasks to show updated assignments
+      await fetchTasks()
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to assign user to task'
+      console.error('Error assigning user to task:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * Unassign current user from a task
+   */
+  const unassignUserFromTask = async (taskId: string, userId: number) => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      await apiService.unassignUserFromTask(taskId, userId)
+      // Refresh tasks to show updated assignments
+      await fetchTasks()
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to unassign user from task'
+      console.error('Error unassigning user from task:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
    * Refresh tasks from the backend
    */
   const refreshTasks = () => {
@@ -195,6 +235,8 @@ export function useKanbanTasks() {
     deleteTask,
     moveTask,
     moveTaskNext,
+    assignUserToTask,
+    unassignUserFromTask,
     refreshTasks,
   }
 }

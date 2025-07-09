@@ -173,6 +173,105 @@ export class ApiService {
       throw error
     }
   }
+
+  /**
+   * Create a new user
+   */
+  async createUser(userData: {
+    username: string
+    password: string
+    display_name: string
+    profile_picture?: string
+    is_admin?: boolean
+  }): Promise<ApiUser> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error creating user:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Login user
+   */
+  async loginUser(credentials: {
+    username: string
+    password: string
+  }): Promise<{ user: ApiUser; token?: string }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+      return await response.json()
+    } catch (error) {
+      console.error('Error logging in:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Assign a user to a task
+   */
+  async assignUserToTask(taskId: string, userId: number): Promise<void> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/tasks/${taskId}/assign`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId }),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+    } catch (error) {
+      console.error('Error assigning user to task:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Remove a user from a task
+   */
+  async unassignUserFromTask(taskId: string, userId: number): Promise<void> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/tasks/${taskId}/unassign`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId }),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+    } catch (error) {
+      console.error('Error unassigning user from task:', error)
+      throw error
+    }
+  }
 }
 
 // Default API service instance

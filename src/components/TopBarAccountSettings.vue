@@ -5,32 +5,30 @@ import {
   NCard,
   NInput,
   NButton,
-  NCheckbox,
   NSpace,
   NForm,
   NFormItem,
+  NTabs,
+  NTabPane,
 } from '@arijs/naive-ui'
 
 const userName = ref('')
 const userPassword = ref('')
-const currentPassword = ref('')
-const newPassword = ref('')
 const confirmPassword = ref('')
+const displayName = ref('')
 
 defineProps({
   isOpen: Boolean,
 })
-const emit = defineEmits(['modal-close', 'modal-submit'])
+const emit = defineEmits(['modal-close', 'login-submit', 'register-submit'])
 
-const showPasswordChange = ref(false)
+const activeTab = ref('login')
 
 function clearForm() {
   userName.value = ''
   userPassword.value = ''
-  currentPassword.value = ''
-  newPassword.value = ''
   confirmPassword.value = ''
-  showPasswordChange.value = false
+  displayName.value = ''
 }
 
 function cancelSettings() {
@@ -38,18 +36,40 @@ function cancelSettings() {
   emit('modal-close')
 }
 
-function submitAccountSettings() {
-  // Basic validation
-  if (showPasswordChange.value && newPassword.value !== confirmPassword.value) {
-    alert('Новый пароль и подтверждение пароля не совпадают')
+function submitLogin() {
+  if (!userName.value || !userPassword.value) {
+    alert('Пожалуйста, заполните все поля')
     return
   }
 
-  emit('modal-submit', {
-    userName: userName.value,
-    userPassword: userPassword.value,
-    currentPassword: currentPassword.value ? currentPassword.value : null,
-    newPassword: showPasswordChange.value ? newPassword.value : null,
+  emit('login-submit', {
+    username: userName.value,
+    password: userPassword.value,
+  })
+  clearForm()
+}
+
+function submitRegister() {
+  // Basic validation
+  if (!userName.value || !userPassword.value || !displayName.value) {
+    alert('Пожалуйста, заполните все обязательные поля')
+    return
+  }
+
+  if (userPassword.value !== confirmPassword.value) {
+    alert('Пароли не совпадают')
+    return
+  }
+
+  if (userPassword.value.length < 6) {
+    alert('Пароль должен содержать минимум 6 символов')
+    return
+  }
+
+  emit('register-submit', {
+    username: userName.value,
+    password: userPassword.value,
+    display_name: displayName.value,
   })
   clearForm()
 }
@@ -63,70 +83,83 @@ function submitAccountSettings() {
   >
     <n-card
       style="width: 600px"
-      title="Настройки аккаунта"
+      title="Аккаунт"
       :bordered="false"
       size="huge"
       role="dialog"
       aria-modal="true"
     >
-      <n-form @submit.prevent="submitAccountSettings">
-        <n-form-item label="Имя пользователя">
-          <n-input v-model:value="userName" placeholder="Введите email" clearable />
-        </n-form-item>
+      <n-tabs v-model:value="activeTab" type="line" animated>
+        <!-- Login Tab -->
+        <n-tab-pane name="login" tab="Вход">
+          <n-form @submit.prevent="submitLogin">
+            <n-form-item label="Имя пользователя">
+              <n-input v-model:value="userName" placeholder="Введите имя пользователя" clearable />
+            </n-form-item>
 
-        <n-form-item label="Пароль">
-          <n-input
-            v-model:value="userPassword"
-            type="password"
-            placeholder="Введите пароль"
-            show-password-on="click"
-            clearable
-          />
-        </n-form-item>
+            <n-form-item label="Пароль">
+              <n-input
+                v-model:value="userPassword"
+                type="password"
+                placeholder="Введите пароль"
+                show-password-on="click"
+                clearable
+              />
+            </n-form-item>
+          </n-form>
 
-        <n-form-item>
-          <n-checkbox v-model:checked="showPasswordChange"> Изменить пароль </n-checkbox>
-        </n-form-item>
+          <div class="mt-6">
+            <n-space justify="end">
+              <n-button @click="cancelSettings"> Отмена </n-button>
+              <n-button type="primary" @click="submitLogin"> Войти </n-button>
+            </n-space>
+          </div>
+        </n-tab-pane>
 
-        <template v-if="showPasswordChange">
-          <n-form-item label="Текущий пароль">
-            <n-input
-              v-model:value="currentPassword"
-              type="password"
-              placeholder="Введите текущий пароль"
-              show-password-on="click"
-              clearable
-            />
-          </n-form-item>
+        <!-- Registration Tab -->
+        <n-tab-pane name="register" tab="Регистрация">
+          <n-form @submit.prevent="submitRegister">
+            <n-form-item label="Имя пользователя" required>
+              <n-input v-model:value="userName" placeholder="Введите имя пользователя" clearable />
+            </n-form-item>
 
-          <n-form-item label="Новый пароль">
-            <n-input
-              v-model:value="newPassword"
-              type="password"
-              placeholder="Введите новый пароль"
-              show-password-on="click"
-              clearable
-            />
-          </n-form-item>
+            <n-form-item label="Отображаемое имя" required>
+              <n-input
+                v-model:value="displayName"
+                placeholder="Введите отображаемое имя"
+                clearable
+              />
+            </n-form-item>
 
-          <n-form-item label="Подтвердите новый пароль">
-            <n-input
-              v-model:value="confirmPassword"
-              type="password"
-              placeholder="Подтвердите новый пароль"
-              show-password-on="click"
-              clearable
-            />
-          </n-form-item>
-        </template>
+            <n-form-item label="Пароль" required>
+              <n-input
+                v-model:value="userPassword"
+                type="password"
+                placeholder="Введите пароль (минимум 6 символов)"
+                show-password-on="click"
+                clearable
+              />
+            </n-form-item>
 
-        <template #footer>
-          <n-space justify="end">
-            <n-button @click="cancelSettings"> Отмена </n-button>
-            <n-button type="primary" @click="submitAccountSettings"> Сохранить </n-button>
-          </n-space>
-        </template>
-      </n-form>
+            <n-form-item label="Подтвердите пароль" required>
+              <n-input
+                v-model:value="confirmPassword"
+                type="password"
+                placeholder="Подтвердите пароль"
+                show-password-on="click"
+                clearable
+              />
+            </n-form-item>
+          </n-form>
+
+          <div class="mt-6">
+            <n-space justify="end">
+              <n-button @click="cancelSettings"> Отмена </n-button>
+              <n-button type="primary" @click="submitRegister"> Зарегистрироваться </n-button>
+            </n-space>
+          </div>
+        </n-tab-pane>
+      </n-tabs>
     </n-card>
   </n-modal>
 </template>

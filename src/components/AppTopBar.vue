@@ -4,9 +4,14 @@ import { NLayoutHeader, NInput, NButton, NSpace } from '@arijs/naive-ui'
 import TopBarTaskCreate from './TopBarTaskCreate.vue'
 import TopBarAccountSettings from './TopBarAccountSettings.vue'
 import { useKanbanTasks } from '../composables/useKanbanTasks'
+import { useAuth } from '../composables/useAuth'
+import { apiService } from '../services/api'
 
 // Use the kanban tasks composable for task management
 const { createTask, refreshTasks } = useKanbanTasks()
+
+// Use authentication composable
+const { isLoggedIn, userDisplayName, saveUserToCookie, logout } = useAuth()
 
 // Modal state management
 const modals = ref({
@@ -49,35 +54,35 @@ const taskModalSubmit = async (taskData: {
   }
 }
 
-const accountModalSubmit = (accountData: {
-  userName: string
-  userPassword: string
-  currentPassword: string | null
-  newPassword: string | null
+const handleLogin = async (credentials: { username: string; password: string }) => {
+  closeModal('accountSettings')
+  try {
+    const result = await apiService.loginUser(credentials)
+    console.log('Login successful:', result)
+    saveUserToCookie(result.user)
+    alert(`Добро пожаловать, ${result.user.display_name}!`)
+  } catch (error) {
+    console.error('Login failed:', error)
+    alert(`Ошибка входа: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
+  }
+}
+
+const handleRegister = async (userData: {
+  username: string
+  password: string
+  display_name: string
 }) => {
   closeModal('accountSettings')
-  if (accountData.userName && accountData.userPassword) {
-    fetch(`${import.meta.env.VITE_SERVER}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: accountData.userName,
-        password: accountData.userPassword,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          alert(`Ошибка: ${response.status} ${response.statusText}`)
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        return response.json()
-      })
-      .then((body) => {
-        console.log(body)
-        document.cookie = `user=${JSON.stringify(body.user)}`
-      })
+  try {
+    const newUser = await apiService.createUser(userData)
+    console.log('Registration successful:', newUser)
+    alert(`Регистрация прошла успешно! Добро пожаловать, ${newUser.display_name}!`)
+
+    // Automatically log in the user after registration
+    await handleLogin({ username: userData.username, password: userData.password })
+  } catch (error) {
+    console.error('Registration failed:', error)
+    alert(`Ошибка регистрации: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`)
   }
 }
 </script>
@@ -92,7 +97,15 @@ const accountModalSubmit = (accountData: {
       <n-space class="ml-auto" align="center">
         <span class="text-white font-medium">Проекты</span>
         <n-button type="primary" @click="() => openModal('taskCreate')"> Создать задачу </n-button>
-        <n-button @click="() => openModal('accountSettings')"> Аккаунт </n-button>
+
+        <!-- Show different buttons based on login state -->
+        <template v-if="isLoggedIn">
+          <span class="text-white font-medium">{{ userDisplayName }}</span>
+          <n-button @click="logout"> Выйти </n-button>
+        </template>
+        <template v-else>
+          <n-button @click="() => openModal('accountSettings')"> Аккаунт </n-button>
+        </template>
       </n-space>
     </div>
   </n-layout-header>
@@ -110,7 +123,8 @@ const accountModalSubmit = (accountData: {
   <TopBarAccountSettings
     :is-open="modals.accountSettings"
     @modal-close="() => closeModal('accountSettings')"
-    @modal-submit="accountModalSubmit"
+    @login-submit="handleLogin"
+    @register-submit="handleRegister"
     name="account-modal"
   ></TopBarAccountSettings>
 </template>

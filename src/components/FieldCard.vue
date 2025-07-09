@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { NCard, NButton, NIcon, NSpace, NText, NTag } from '@arijs/naive-ui'
-import { EditOutlined, InfoOutlined, ArrowForwardOutlined } from '@vicons/material'
+import {
+  EditOutlined,
+  InfoOutlined,
+  ArrowForwardOutlined,
+  PersonAddOutlined,
+  PersonRemoveOutlined,
+} from '@vicons/material'
 import type { Priority } from '../types/priority'
 import { PRIORITY_COLORS, PRIORITY_LABELS } from '../types/priority'
 
@@ -10,15 +16,18 @@ interface Props {
   priority?: Priority
   deadline?: string
   currentColumn?: string
+  assignees?: number[]
+  currentUserId?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   title: 'Название задачи',
   description: 'Описание задачи',
   priority: 'medium' as Priority,
+  assignees: () => [],
 })
 
-const emit = defineEmits(['edit', 'info', 'moveNext'])
+const emit = defineEmits(['edit', 'info', 'moveNext', 'assignSelf', 'unassignSelf'])
 </script>
 
 <template>
@@ -53,6 +62,33 @@ const emit = defineEmits(['edit', 'info', 'moveNext'])
             <n-icon><InfoOutlined /></n-icon>
           </template>
         </n-button>
+
+        <!-- Assignment button - only show if user is logged in -->
+        <template v-if="props.currentUserId">
+          <n-button
+            v-if="!props.assignees.includes(props.currentUserId)"
+            size="small"
+            quaternary
+            @click="emit('assignSelf')"
+            title="Назначить себя на задачу"
+          >
+            <template #icon>
+              <n-icon><PersonAddOutlined /></n-icon>
+            </template>
+          </n-button>
+          <n-button
+            v-else
+            size="small"
+            quaternary
+            @click="emit('unassignSelf')"
+            title="Снять себя с задачи"
+          >
+            <template #icon>
+              <n-icon><PersonRemoveOutlined /></n-icon>
+            </template>
+          </n-button>
+        </template>
+
         <n-button
           size="small"
           quaternary
