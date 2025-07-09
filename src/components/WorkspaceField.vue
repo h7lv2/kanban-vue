@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { NCard, NSpin, NResult, NButton } from '@arijs/naive-ui'
 import FieldCard from './FieldCard.vue'
 import TopBarTaskEdit from './TopBarTaskEdit.vue'
+import TopBarTaskInfo from './TopBarTaskInfo.vue'
 import { useKanbanTasks } from '../composables/useKanbanTasks'
 import { useAuth } from '../composables/useAuth'
 import type { Task } from '../types/task'
@@ -23,9 +24,20 @@ const {
 // Use authentication composable
 const { userId } = useAuth()
 
+// Computed property for info task assignees
+const infoTaskAssignees = computed(() => {
+  if (!infoTask.value?.id) return []
+  const task = tasks.value.find((t) => t.id === infoTask.value!.id)
+  return task?.assignees || []
+})
+
 // Edit modal state
 const isEditModalOpen = ref(false)
 const editingTask = ref<Task | null>(null)
+
+// Info modal state
+const isInfoModalOpen = ref(false)
+const infoTask = ref<Task | null>(null)
 
 // Handle edit task
 function handleEditTask(task: Task) {
@@ -41,14 +53,14 @@ function handleEditModalClose() {
 
 // Handle edit modal submit
 async function handleEditModalSubmit(formData: {
-  id: number
+  id: string
   taskName: string
   taskDescription?: string | null
   deadlineDate?: string | null
   priority?: string | null
 }) {
   try {
-    await updateTask(formData.id.toString(), {
+    await updateTask(formData.id, {
       title: formData.taskName,
       description: formData.taskDescription || '',
       deadline: formData.deadlineDate || undefined,
@@ -79,9 +91,14 @@ async function handleAssignSelf(task: Task) {
 
   try {
     await assignUserToTask(task.id, userId.value)
+    alert('Вы успешно назначены на задачу!')
   } catch (error) {
     console.error('Failed to assign user to task:', error)
-    alert('Ошибка при назначении на задачу')
+    if (error instanceof Error && error.message.includes('User not found')) {
+      alert('Ошибка: Пользователь не найден в системе. Попробуйте перезайти в аккаунт.')
+    } else {
+      alert('Ошибка при назначении на задачу')
+    }
   }
 }
 
@@ -135,6 +152,18 @@ const allColumnsFit = computed(() => availableWidth.value >= totalColumnsWidth.v
 const isWideScreen = computed(
   () => aspectRatio.value > 1.3 && (allColumnsFit.value || windowWidth.value >= 1400),
 )
+
+// Handle info task
+function handleInfoTask(task: Task) {
+  infoTask.value = task
+  isInfoModalOpen.value = true
+}
+
+// Handle info modal close
+function handleInfoModalClose() {
+  isInfoModalOpen.value = false
+  infoTask.value = null
+}
 </script>
 
 <template>
@@ -190,7 +219,7 @@ const isWideScreen = computed(
               :assignees="tasks.find((t: any) => t.id === task.id)?.assignees || []"
               :current-user-id="userId"
               @edit="() => handleEditTask(task)"
-              @info="() => console.log('Show task info', task.id)"
+              @info="() => handleInfoTask(task)"
               @move-next="() => handleMoveTaskNext(task, column.id)"
               @assign-self="() => handleAssignSelf(task)"
               @unassign-self="() => handleUnassignSelf(task)"
@@ -226,7 +255,7 @@ const isWideScreen = computed(
               :assignees="tasks.find((t: any) => t.id === task.id)?.assignees || []"
               :current-user-id="userId"
               @edit="() => handleEditTask(task)"
-              @info="() => console.log('Show task info', task.id)"
+              @info="() => handleInfoTask(task)"
               @move-next="() => handleMoveTaskNext(task, column.id)"
               @assign-self="() => handleAssignSelf(task)"
               @unassign-self="() => handleUnassignSelf(task)"
@@ -247,5 +276,13 @@ const isWideScreen = computed(
     :task="editingTask"
     @modal-close="handleEditModalClose"
     @modal-submit="handleEditModalSubmit"
+  />
+
+  <!-- Info Task Modal -->
+  <TopBarTaskInfo
+    :is-open="isInfoModalOpen"
+    :task="infoTask"
+    :assignees="infoTaskAssignees"
+    @modal-close="handleInfoModalClose"
   />
 </template>

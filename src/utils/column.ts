@@ -27,7 +27,7 @@ export function addTaskToColumn(columns: Column[], columnId: ColumnId, task: Tas
 export function removeTaskFromColumn(
   columns: Column[],
   columnId: ColumnId,
-  taskId: number,
+  taskId: string,
 ): Column[] {
   return columns.map((column) =>
     column.id === columnId
@@ -43,7 +43,7 @@ export function moveTaskBetweenColumns(
   columns: Column[],
   fromColumnId: ColumnId,
   toColumnId: ColumnId,
-  taskId: number,
+  taskId: string,
 ): Column[] {
   let taskToMove: Task | undefined
 

@@ -26,6 +26,6 @@ export function validateTask(task: Partial<Task>): boolean {
 /**
  * Генерирует новый ID для задачи
  */
-export function generateTaskId(): number {
-  return Date.now() + Math.random()
+export function generateTaskId(): string {
+  return (Date.now() + Math.random()).toString()
 }

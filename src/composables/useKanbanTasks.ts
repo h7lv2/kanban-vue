@@ -172,7 +172,7 @@ export function useKanbanTasks() {
   /**
    * Assign current user to a task
    */
-  const assignUserToTask = async (taskId: string, userId: number) => {
+  const assignUserToTask = async (taskId: string, userId: string) => {
     isLoading.value = true
     error.value = null
 
@@ -192,7 +192,7 @@ export function useKanbanTasks() {
   /**
    * Unassign current user from a task
    */
-  const unassignUserFromTask = async (taskId: string, userId: number) => {
+  const unassignUserFromTask = async (taskId: string, userId: string) => {
     isLoading.value = true
     error.value = null
 

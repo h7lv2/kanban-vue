@@ -10,7 +10,7 @@ export const DEFAULT_COLUMNS: Column[] = [
     title: 'К выполнению',
     tasks: [
       {
-        id: 1,
+        id: '1',
         title: 'Пример задачи 1',
         description:
           'Это примерная задача для демонстрации интерфейса lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
@@ -18,7 +18,7 @@ export const DEFAULT_COLUMNS: Column[] = [
         deadline: '2025-07-15',
       },
       {
-        id: 2,
+        id: '2',
         title: 'Изучить Vue 3',
         description: 'Освоить основы Vue 3 и Composition API',
         priority: 'medium',
@@ -30,7 +30,7 @@ export const DEFAULT_COLUMNS: Column[] = [
     title: 'В работе',
     tasks: [
       {
-        id: 3,
+        id: '3',
         title: 'Разработка компонентов',
         description: 'Создание переиспользуемых компонентов для канбан-доски',
         priority: 'high',
@@ -43,7 +43,7 @@ export const DEFAULT_COLUMNS: Column[] = [
     title: 'На проверке',
     tasks: [
       {
-        id: 4,
+        id: '4',
         title: 'Код-ревью',
         description: 'Проверка кода новых функций',
         priority: 'medium',
@@ -55,7 +55,7 @@ export const DEFAULT_COLUMNS: Column[] = [
     title: 'Выполнено',
     tasks: [
       {
-        id: 5,
+        id: '5',
         title: 'Настройка проекта',
         description: 'Первоначальная настройка Vue проекта с TypeScript',
         priority: 'low',

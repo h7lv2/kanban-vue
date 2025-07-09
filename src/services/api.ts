@@ -12,18 +12,18 @@ export interface ApiTask {
   date_completed?: number
   current_column: string
   created_at: string
-  assignees: number[]
+  assignees: string[] // Changed from number[] to string[]
 }
 
 export interface ApiUser {
-  id: number
+  id: string // Changed from number to string to handle large snowflake IDs
   username: string
   display_name: string
   profile_picture?: string
   is_admin: boolean
   date_created: number
   created_at: string
-  tasks_assigned: number[]
+  tasks_assigned: string[] // Changed from number[] to string[]
 }
 
 export class ApiService {
@@ -232,7 +232,7 @@ export class ApiService {
   /**
    * Assign a user to a task
    */
-  async assignUserToTask(taskId: string, userId: number): Promise<void> {
+  async assignUserToTask(taskId: string, userId: string): Promise<void> {
     try {
       const response = await fetch(`${this.baseUrl}/api/tasks/${taskId}/assign`, {
         method: 'POST',
@@ -254,7 +254,7 @@ export class ApiService {
   /**
    * Remove a user from a task
    */
-  async unassignUserFromTask(taskId: string, userId: number): Promise<void> {
+  async unassignUserFromTask(taskId: string, userId: string): Promise<void> {
     try {
       const response = await fetch(`${this.baseUrl}/api/tasks/${taskId}/unassign`, {
         method: 'POST',

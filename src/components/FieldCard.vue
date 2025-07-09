@@ -16,8 +16,8 @@ interface Props {
   priority?: Priority
   deadline?: string
   currentColumn?: string
-  assignees?: number[]
-  currentUserId?: number | null
+  assignees?: string[] // Changed from number[] to string[]
+  currentUserId?: string | null // Changed from number to string
 }
 
 const props = withDefaults(defineProps<Props>(), {

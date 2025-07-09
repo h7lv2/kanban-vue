@@ -57,7 +57,7 @@ import { DEFAULT_COLUMNS } from '@/data'
 
 ```typescript
 interface Task {
-  id: number
+  id: string
   title: string
   description: string
   priority: Priority
@@ -82,11 +82,3 @@ interface Column {
 
 type ColumnId = 'todo' | 'progress' | 'review' | 'done'
 ```
-
-## Преимущества
-
-1. **Централизация** - все типы находятся в одном месте
-2. **Переиспользование** - типы можно использовать в разных компонентах
-3. **Типобезопасность** - TypeScript проверяет корректность использования
-4. **Консистентность** - единые константы и утилиты по всему проекту
-5. **Масштабируемость** - легко добавлять новые типы и утилиты
