@@ -1,18 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import {
-  NModal,
-  NCard,
-  NText,
-  NButton,
-  NSpace,
-  NTag,
-  NAvatar,
-  NList,
-  NListItem,
-  NSpin,
-  NDivider,
-} from '@arijs/naive-ui'
+import { NModal, NCard, NText, NTag, NAvatar, NSpin, NDivider } from '@arijs/naive-ui'
 import type { Task } from '../types/task'
 import type { ApiUser } from '../services/api'
 import { PRIORITY_COLORS, PRIORITY_LABELS } from '../types/priority'
@@ -131,7 +119,7 @@ onMounted(() => {
   >
     <n-card
       v-if="task"
-      style="width: 700px; max-height: 80vh"
+      style="width: 700px; height: 600px; display: flex; flex-direction: column"
       :title="task.title"
       :bordered="false"
       size="huge"
@@ -144,73 +132,75 @@ onMounted(() => {
         </n-tag>
       </template>
 
-      <div class="space-y-6">
-        <!-- Description -->
-        <div>
-          <h3 class="text-lg font-semibold mb-3">Описание</h3>
-          <n-text class="text-base leading-relaxed">
-            {{ task.description || 'Описание отсутствует' }}
-          </n-text>
-        </div>
+      <div class="modal-body">
+        <div class="content-scroll">
+          <!-- Description -->
+          <div>
+            <h3 class="text-lg font-semibold mb-3">Описание</h3>
+            <n-text class="text-base leading-relaxed">
+              {{ task.description || 'Описание отсутствует' }}
+            </n-text>
+          </div>
 
-        <n-divider />
+          <n-divider />
 
-        <!-- Task Details -->
-        <div>
-          <h3 class="text-lg font-semibold mb-3">Детали задачи</h3>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <n-text depth="3" class="text-sm font-medium">Приоритет:</n-text>
-              <div class="mt-1">
-                <n-tag :type="PRIORITY_COLORS[task.priority]" size="small">
-                  {{ PRIORITY_LABELS[task.priority] }}
-                </n-tag>
+          <!-- Task Details -->
+          <div>
+            <h3 class="text-lg font-semibold mb-3">Детали задачи</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <n-text depth="3" class="text-sm font-medium">Приоритет:</n-text>
+                <div class="mt-1">
+                  <n-tag :type="PRIORITY_COLORS[task.priority]" size="small">
+                    {{ PRIORITY_LABELS[task.priority] }}
+                  </n-tag>
+                </div>
               </div>
-            </div>
 
-            <div v-if="formattedDeadline">
-              <n-text depth="3" class="text-sm font-medium">Дедлайн:</n-text>
-              <div class="mt-1">
-                <n-text class="text-sm">{{ formattedDeadline }}</n-text>
+              <div v-if="formattedDeadline">
+                <n-text depth="3" class="text-sm font-medium">Дедлайн:</n-text>
+                <div class="mt-1">
+                  <n-text class="text-sm">{{ formattedDeadline }}</n-text>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <n-text depth="3" class="text-sm font-medium">Дата создания:</n-text>
-              <div class="mt-1">
-                <n-text class="text-sm">{{ formattedCreatedDate }}</n-text>
+              <div>
+                <n-text depth="3" class="text-sm font-medium">Дата создания:</n-text>
+                <div class="mt-1">
+                  <n-text class="text-sm">{{ formattedCreatedDate }}</n-text>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <n-text depth="3" class="text-sm font-medium">ID задачи:</n-text>
-              <div class="mt-1">
-                <n-text class="text-sm font-mono">{{ task.id }}</n-text>
+              <div>
+                <n-text depth="3" class="text-sm font-medium">ID задачи:</n-text>
+                <div class="mt-1">
+                  <n-text class="text-sm font-mono">{{ task.id }}</n-text>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <n-divider />
+          <n-divider />
 
-        <!-- Assignees -->
-        <div>
-          <h3 class="text-lg font-semibold mb-3">
-            Исполнители
-            <span class="text-sm font-normal text-gray-500"> ({{ assignees?.length || 0 }}) </span>
-          </h3>
+          <!-- Assignees -->
+          <div>
+            <h3 class="text-lg font-semibold mb-3">
+              Исполнители
+              <span class="text-sm font-normal text-gray-500">
+                ({{ assignees?.length || 0 }})
+              </span>
+            </h3>
 
-          <div v-if="loadingAssignees" class="flex justify-center py-4">
-            <n-spin size="medium" />
-          </div>
+            <div v-if="loadingAssignees" class="flex justify-center py-4">
+              <n-spin size="medium" />
+            </div>
 
-          <div v-else-if="assigneesData.length === 0" class="text-center py-6">
-            <n-text depth="3">Задача не назначена</n-text>
-          </div>
+            <div v-else-if="assigneesData.length === 0" class="text-center py-6">
+              <n-text depth="3">Задача не назначена</n-text>
+            </div>
 
-          <n-list v-else bordered>
-            <n-list-item v-for="assignee in assigneesData" :key="assignee.id">
-              <template #prefix>
+            <div v-else class="assignees-static">
+              <div v-for="assignee in assigneesData" :key="assignee.id" class="assignee-item">
                 <n-avatar
                   round
                   size="medium"
@@ -219,31 +209,79 @@ onMounted(() => {
                 >
                   {{ assignee.display_name.charAt(0).toUpperCase() }}
                 </n-avatar>
-              </template>
 
-              <div>
-                <n-text class="font-medium">{{ assignee.display_name }}</n-text>
-                <br />
-                <n-text depth="3" class="text-sm">@{{ assignee.username }}</n-text>
-                <n-tag v-if="assignee.is_admin" type="warning" size="small" class="ml-2">
-                  Админ
-                </n-tag>
+                <div class="assignee-info">
+                  <n-text class="font-medium">{{ assignee.display_name }}</n-text>
+                  <br />
+                  <n-text depth="3" class="text-sm">@{{ assignee.username }}</n-text>
+                  <n-tag v-if="assignee.is_admin" type="warning" size="small" class="ml-2">
+                    Админ
+                  </n-tag>
+                </div>
               </div>
-            </n-list-item>
-          </n-list>
+            </div>
+          </div>
         </div>
       </div>
-
-      <template #footer>
-        <n-space justify="end">
-          <n-button @click="emit('modal-close')">Закрыть</n-button>
-        </n-space>
-      </template>
     </n-card>
   </n-modal>
 </template>
 
 <style scoped>
+.modal-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.assignees-static {
+  border: 1px solid #e0e0e6;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.assignee-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f2;
+  gap: 12px;
+}
+
+.assignee-item:last-child {
+  border-bottom: none;
+}
+
+.assignee-info {
+  flex: 1;
+}
+
+/* Custom scrollbar styling */
+.content-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.content-scroll::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.content-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
 .grid {
   display: grid;
 }
