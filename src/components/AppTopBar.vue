@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { NLayoutHeader, NInput, NButton, NSpace } from '@arijs/naive-ui'
 import TopBarTaskCreate from './TopBarTaskCreate.vue'
 import TopBarAccountSettings from './TopBarAccountSettings.vue'
 
@@ -23,6 +24,7 @@ const taskModalSubmit = (taskData: {
   taskName: string
   taskDescription: string | null
   deadlineDate: string | null
+  priority: 'low' | 'medium' | 'high' | null
 }) => {
   closeModal('taskCreate')
   fetch(`${import.meta.env.VITE_SERVER}/tasks`, {
@@ -32,7 +34,9 @@ const taskModalSubmit = (taskData: {
     },
     body: JSON.stringify({
       name: taskData.taskName,
+      description: taskData.taskDescription,
       date_deadline: taskData.deadlineDate,
+      priority: taskData.priority,
       date_completed: null,
       current_column: 'pool',
     }),
@@ -41,10 +45,14 @@ const taskModalSubmit = (taskData: {
       if (!response.ok) {
         throw new Error(`Error creating task: ${response.status} ${response.text}`)
       }
-      return response.json
+      return response.json()
     })
     .then((data) => {
-      console.log(data)
+      console.log('Task created:', data)
+    })
+    .catch((error) => {
+      console.error('Error creating task:', error)
+      alert('Ошибка при создании задачи')
     })
 }
 
@@ -82,18 +90,30 @@ const accountModalSubmit = (accountData: {
 </script>
 
 <template>
-  <div class="header">
-    <input placeholder="Поиск по задачам..." />
-    <label>Проекты</label>
-    <button @click="() => openModal('taskCreate')">Создать задачу</button>
-    <button @click="() => openModal('accountSettings')">Аккаунт</button>
-  </div>
+  <n-layout-header
+    class="fixed top-0 w-full h-16 bg-blue-500 shadow-lg border-b-2 border-blue-600 z-50"
+  >
+    <div class="flex items-center h-full px-4 gap-4">
+      <n-input placeholder="Поиск по задачам..." class="flex-1 max-w-md" clearable />
+
+      <n-space class="ml-auto" align="center">
+        <span class="text-white font-medium">Проекты</span>
+        <n-button type="primary" @click="() => openModal('taskCreate')"> Создать задачу </n-button>
+        <n-button @click="() => openModal('accountSettings')"> Аккаунт </n-button>
+      </n-space>
+    </div>
+  </n-layout-header>
+
+  <!-- Дополнительный разделитель для лучшего визуального отделения -->
+  <div class="fixed top-16 w-full h-1 bg-gradient-to-b from-blue-200 to-transparent z-40"></div>
+
   <TopBarTaskCreate
     :is-open="modals.taskCreate"
     @modal-close="() => closeModal('taskCreate')"
     @modal-submit="taskModalSubmit"
     name="first-modal"
   ></TopBarTaskCreate>
+
   <TopBarAccountSettings
     :is-open="modals.accountSettings"
     @modal-close="() => closeModal('accountSettings')"
@@ -101,45 +121,3 @@ const accountModalSubmit = (accountData: {
     name="account-modal"
   ></TopBarAccountSettings>
 </template>
-
-<style lang="css" scoped>
-.header {
-  display: flex;
-  justify-content: center;
-  position: fixed;
-  width: 100%;
-  height: 10%;
-  background-color: #28b6f8;
-}
-.header input {
-  font-size: 15px;
-  margin-top: 20px;
-  margin-left: 20px;
-  margin-right: auto;
-  width: 30%;
-  height: 30%;
-  border-radius: 5px;
-  border: none;
-  outline-color: #1b84a7;
-}
-.header button {
-  background-color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  height: 50%;
-  width: 10%;
-  margin-right: 3%;
-  margin-top: 1%;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.header button:hover {
-  background-color: #e6e6e6;
-}
-
-.header label {
-  margin-right: 3%;
-  margin-top: 2%;
-}
-</style>

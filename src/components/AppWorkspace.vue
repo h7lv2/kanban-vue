@@ -1,23 +1,16 @@
 <script setup lang="ts">
+import { NLayout, NLayoutContent } from '@arijs/naive-ui'
 import WorkspaceField from './WorkspaceField.vue'
 </script>
 
 <template>
-  <!-- <WorkspaceField></WorkspaceField> -->
-
-  <div class="main-container">
-    <main class="column-container">
-      <WorkspaceField />
-    </main>
-  </div>
+  <n-layout class="h-screen bg-gray-50">
+    <n-layout-content class="pt-20 overflow-hidden">
+      <div class="h-full overflow-x-auto overflow-y-auto custom-scrollbar">
+        <div class="p-6 min-w-fit">
+          <WorkspaceField />
+        </div>
+      </div>
+    </n-layout-content>
+  </n-layout>
 </template>
-
-<style lang="css" scoped>
-.main-container {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  margin-top: 110px;
-  background-color: rgba(1, 1, 1, 0);
-}
-</style>
