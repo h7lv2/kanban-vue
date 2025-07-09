@@ -1,33 +1,23 @@
 <script setup lang="ts">
 import { NCard, NButton, NIcon, NSpace, NText, NTag } from '@arijs/naive-ui'
 import { EditOutlined, InfoOutlined } from '@vicons/material'
+import type { Priority } from '../types/priority'
+import { PRIORITY_COLORS, PRIORITY_LABELS } from '../types/priority'
 
 interface Props {
   title?: string
   description?: string
-  priority?: 'low' | 'medium' | 'high'
+  priority?: Priority
   deadline?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   title: 'Название задачи',
   description: 'Описание задачи',
-  priority: 'medium',
+  priority: 'medium' as Priority,
 })
 
 const emit = defineEmits(['edit', 'info'])
-
-const priorityColors = {
-  low: 'success',
-  medium: 'warning',
-  high: 'error',
-} as const
-
-const priorityLabels = {
-  low: 'Низкий',
-  medium: 'Средний',
-  high: 'Высокий',
-} as const
 </script>
 
 <template>
@@ -37,8 +27,8 @@ const priorityLabels = {
     </template>
 
     <template #header-extra>
-      <n-tag :type="priorityColors[props.priority]" size="small" round>
-        {{ priorityLabels[props.priority] }}
+      <n-tag :type="PRIORITY_COLORS[props.priority]" size="small" round>
+        {{ PRIORITY_LABELS[props.priority] }}
       </n-tag>
     </template>
 

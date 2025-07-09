@@ -12,11 +12,13 @@ import {
   NFormItem,
   NSelect,
 } from '@arijs/naive-ui'
+import type { Priority } from '../types/priority'
+import { PRIORITY_OPTIONS } from '../types/priority'
 
 const taskName = ref('')
 const taskDescription = ref('')
 const deadlineDate = ref<number | null>(null)
-const priority = ref<'low' | 'medium' | 'high'>('medium')
+const priority = ref<Priority>('medium')
 
 defineProps({
   isOpen: Boolean,
@@ -25,12 +27,6 @@ const emit = defineEmits(['modal-close', 'modal-submit'])
 
 const showDate = ref(false)
 const showPriority = ref(false)
-
-const priorityOptions = [
-  { label: 'Низкий', value: 'low' },
-  { label: 'Средний', value: 'medium' },
-  { label: 'Высокий', value: 'high' },
-]
 
 function clearForm() {
   taskName.value = ''
@@ -47,9 +43,8 @@ function cancelModal() {
 }
 
 function submitModal() {
-  // Простая валидация
   if (!taskName.value.trim()) {
-    return // Кнопка уже отключена, но на всякий случай
+    return
   }
 
   const formattedDate = deadlineDate.value
@@ -125,7 +120,7 @@ function submitModal() {
         <n-form-item v-if="showPriority" label="Приоритет">
           <n-select
             v-model:value="priority"
-            :options="priorityOptions"
+            :options="PRIORITY_OPTIONS"
             placeholder="Выберите приоритет"
             style="width: 100%"
           />

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Кастомные стили для скроллбара */
+/* Custom scrollbar styles */
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 #f1f5f9;
