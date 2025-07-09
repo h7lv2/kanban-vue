@@ -5,7 +5,7 @@
 import type { Priority } from './priority'
 
 export interface Task {
-  id: number
+  id: string
   title: string
   description: string
   priority: Priority

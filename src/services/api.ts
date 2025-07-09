@@ -3,7 +3,7 @@
  */
 
 export interface ApiTask {
-  id: number
+  id: string
   title: string
   description: string
   priority: 'low' | 'medium' | 'high'
@@ -69,7 +69,7 @@ export class ApiService {
   /**
    * Fetch a specific task by ID
    */
-  async getTask(taskId: number): Promise<ApiTask> {
+  async getTask(taskId: string): Promise<ApiTask> {
     try {
       const response = await fetch(`${this.baseUrl}/api/tasks/${taskId}`)
       if (!response.ok) {
@@ -114,7 +114,7 @@ export class ApiService {
    * Update an existing task
    */
   async updateTask(
-    taskId: number,
+    taskId: string,
     taskData: Partial<{
       title: string
       description: string
@@ -144,7 +144,7 @@ export class ApiService {
   /**
    * Delete a task
    */
-  async deleteTask(taskId: number): Promise<void> {
+  async deleteTask(taskId: string): Promise<void> {
     try {
       const response = await fetch(`${this.baseUrl}/api/tasks/${taskId}`, {
         method: 'DELETE',

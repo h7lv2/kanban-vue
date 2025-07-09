@@ -94,7 +94,7 @@ export function useKanbanTasks() {
    * Update an existing task
    */
   const updateTask = async (
-    taskId: number,
+    taskId: string,
     taskData: Partial<{
       title: string
       description: string
@@ -125,7 +125,7 @@ export function useKanbanTasks() {
   /**
    * Delete a task
    */
-  const deleteTask = async (taskId: number) => {
+  const deleteTask = async (taskId: string) => {
     isLoading.value = true
     error.value = null
 
@@ -144,7 +144,7 @@ export function useKanbanTasks() {
   /**
    * Move a task to a different column
    */
-  const moveTask = async (taskId: number, newColumn: string) => {
+  const moveTask = async (taskId: string, newColumn: string) => {
     await updateTask(taskId, { current_column: newColumn })
   }
 

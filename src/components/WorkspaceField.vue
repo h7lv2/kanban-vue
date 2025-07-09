@@ -2,10 +2,50 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { NCard, NSpin, NResult, NButton } from '@arijs/naive-ui'
 import FieldCard from './FieldCard.vue'
+import TopBarTaskEdit from './TopBarTaskEdit.vue'
 import { useKanbanTasks } from '../composables/useKanbanTasks'
+import type { Task } from '../types/task'
 
 // Use kanban tasks composable
-const { columns, isLoading, error, refreshTasks } = useKanbanTasks()
+const { columns, isLoading, error, refreshTasks, updateTask } = useKanbanTasks()
+
+// Edit modal state
+const isEditModalOpen = ref(false)
+const editingTask = ref<Task | null>(null)
+
+// Handle edit task
+function handleEditTask(task: Task) {
+  editingTask.value = task
+  isEditModalOpen.value = true
+}
+
+// Handle edit modal close
+function handleEditModalClose() {
+  isEditModalOpen.value = false
+  editingTask.value = null
+}
+
+// Handle edit modal submit
+async function handleEditModalSubmit(formData: {
+  id: number
+  taskName: string
+  taskDescription?: string | null
+  deadlineDate?: string | null
+  priority?: string | null
+}) {
+  try {
+    await updateTask(formData.id, {
+      title: formData.taskName,
+      description: formData.taskDescription || '',
+      deadline: formData.deadlineDate || undefined,
+      priority: formData.priority as 'low' | 'medium' | 'high' | undefined,
+    })
+    isEditModalOpen.value = false
+    editingTask.value = null
+  } catch (error) {
+    console.error('Failed to update task:', error)
+  }
+}
 
 // Отслеживание размера окна
 const windowWidth = ref(window.innerWidth)
@@ -94,7 +134,7 @@ const isWideScreen = computed(
               :description="task.description"
               :priority="task.priority"
               :deadline="task.deadline"
-              @edit="() => console.log('Edit task', task.id)"
+              @edit="() => handleEditTask(task)"
               @info="() => console.log('Show task info', task.id)"
             />
 
@@ -124,7 +164,7 @@ const isWideScreen = computed(
               :description="task.description"
               :priority="task.priority"
               :deadline="task.deadline"
-              @edit="() => console.log('Edit task', task.id)"
+              @edit="() => handleEditTask(task)"
               @info="() => console.log('Show task info', task.id)"
             />
 
@@ -136,4 +176,12 @@ const isWideScreen = computed(
       </div>
     </div>
   </div>
+
+  <!-- Edit Task Modal -->
+  <TopBarTaskEdit
+    :is-open="isEditModalOpen"
+    :task="editingTask"
+    @modal-close="handleEditModalClose"
+    @modal-submit="handleEditModalSubmit"
+  />
 </template>
